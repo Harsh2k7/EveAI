@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EveAI - Smart Period & Pregnancy Tracker. Track your cycle, predict fertile windows, log symptoms, and stay informed with AI-powered insights.">
+    <title>EveAI — Period & Pregnancy Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='8' y1='8' x2='32' y2='32'><stop offset='0%25' stop-color='%23E879A8'/><stop offset='100%25' stop-color='%23A855F7'/></linearGradient></defs><circle cx='20' cy='20' r='18' stroke='url(%23g)' stroke-width='2.5' fill='none'/><path d='M20 8C20 8 12 16 12 22C12 26.4 15.6 30 20 30C24.4 30 28 26.4 28 22C28 16 20 8 20 8Z' fill='url(%23g)'/></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ===== APP INTRO / SPLASH OVERLAY ===== -->
+    <div class="app-intro-overlay" id="appIntroOverlay">
+        <canvas class="splash-canvas" id="splashCanvas"></canvas>
+        <div class="splash-ambient-glow"></div>
+        <div class="intro-content">
+            <!-- Stage 1: Glowing Moon + Silhouette SVG (0.5s - 1.2s) -->
+            <div class="splash-silhouette-wrap" id="splashSilhouetteWrap">
+                <svg viewBox="0 0 200 200" class="silhouette-svg">
+                    <defs>
+                        <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FF5EA8" />
+                            <stop offset="100%" stop-color="#C9A6FF" />
+                        </linearGradient>
+                        <filter id="svgBloom" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="8" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <path class="moon-path" d="M 115,45 A 55,55 0 1,0 115,155 A 65,65 0 1,1 115,45" fill="url(#glowGrad)" filter="url(#svgBloom)" />
+                    <path class="woman-path" d="M 85,72 C 91,72 94,76 94,81 C 94,86 89,89 89,93 C 89,97 99,101 99,107 C 99,114 83,126 81,136 C 79,145 92,150 92,150 C 92,150 68,151 68,136 C 68,121 79,112 79,105 C 79,98 74,95 74,89 C 74,80 80,72 85,72 Z" fill="url(#glowGrad)" filter="url(#svgBloom)" />
+                </svg>
+            </div>
+            
+            <!-- Stage 2: Brand Logo (Appears at 1.2s) -->
+            <div class="splash-brand-logo-wrap" id="splashBrandLogoWrap">
+                <div class="splash-logo-inner">
+                    <img src="logo.png" alt="EveAI Logo" class="splash-logo-img">
+                    <div class="shimmer-sweep"></div>
+                </div>
+            </div>
+            
+            <!-- Stage 3: Title & Subtitle Texts (2.0s - 3.0s) -->
+            <div class="splash-text-container">
+                <h1 class="splash-title" id="splashTitle">
+                    <span>E</span><span>v</span><span>e</span><span>A</span><span>I</span>
+                </h1>
+                <p class="splash-subtitle" id="splashSubtitle">by ALoKX</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SIDEBAR NAVIGATION ===== -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="logo.png" alt="EveAI Logo" class="logo-img" style="width: 32px; height: 32px; border-radius: var(--radius-sm); object-fit: cover; box-shadow: 0 4px 12px rgba(168,85,247,0.15);">
+                <span class="logo-text" style="margin-left: 0.55rem;">EveAI</span>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li>
+                <a href="#" class="nav-link active" data-section="dashboard" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="tracker" id="nav-tracker">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <circle cx="12" cy="16" r="2" fill="currentColor"/>
+                    </svg>
+                    <span>Tracker</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="predictions" id="nav-predictions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6V12L16 14"/>
+                        <path d="M16.24 7.76L19.07 4.93" stroke-dasharray="2 2"/>
+                    </svg>
+                    <span>Predictions</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="ovulation" id="nav-ovulation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                    </svg>
+                    <span>Ovulation Tracker</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="symptoms" id="nav-symptoms">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span>Symptom Checker</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="settings" id="nav-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-info">
+                    <span class="user-name" id="sidebarUserName">Alok</span>
+                    <span class="user-plan">Premium Plan</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== MOBILE HEADER ===== -->
+    <header class="mobile-header" id="mobileHeader">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="logo logo-mobile">
+            <img src="logo.png" alt="EveAI Logo" class="logo-img" style="width: 32px; height: 32px; border-radius: var(--radius-sm); object-fit: cover;">
+            <span class="logo-text" style="margin-left: 0.55rem; font-weight: 700; font-size: 1.1rem; background: linear-gradient(135deg, #E879A8 0%, #A855F7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EveAI</span>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE OVERLAY ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content" id="mainContent">
+
+        <!-- ==================== DASHBOARD ==================== -->
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <div>
+                    <h1>Good Morning, <span id="dashWelcomeName">Alok</span> ✨</h1>
+                    <p class="page-subtitle">Here's your cycle overview for today</p>
+                </div>
+                <div class="header-date">
+                    <span class="date-text" id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Cycle Ring Hero -->
+            <div class="dashboard-hero">
+                <div class="cycle-ring-card glass-card">
+                    <div class="cycle-ring">
+                        <svg viewBox="0 0 200 200" class="ring-svg">
+                            <defs>
+                                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#E879A8"/>
+                                    <stop offset="50%" stop-color="#C084FC"/>
+                                    <stop offset="100%" stop-color="#818CF8"/>
+                                </linearGradient>
+                                <linearGradient id="ringTrack" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="rgba(232,121,168,0.12)"/>
+                                    <stop offset="100%" stop-color="rgba(129,140,248,0.12)"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="url(#ringTrack)" stroke-width="10"/>
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="url(#ringGradient)" stroke-width="10" stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="356" transform="rotate(-90 100 100)" class="ring-progress"/>
+                        </svg>
+                        <div class="ring-content">
+                            <span class="ring-day" id="dashRingDay">—</span>
+                            <span class="ring-label" id="dashRingLabel">Log your first period</span>
+                            <span class="ring-phase phase-follicular" id="dashRingPhase">No Data Yet</span>
+                        </div>
+                    </div>
+                    <div class="cycle-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">🩸</span>
+                            <div>
+                                <span class="stat-value" id="dashLastPeriod">—</span>
+                                <span class="stat-label">Last Period</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🥚</span>
+                            <div>
+                                <span class="stat-value" id="dashOvulation">—</span>
+                                <span class="stat-label">Ovulation</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">📅</span>
+                            <div>
+                                <span class="stat-value" id="dashNextPeriod">—</span>
+                                <span class="stat-label">Next Period</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">💧</span>
+                            <div>
+                                <span class="stat-value" id="dashFertility">—</span>
+                                <span class="stat-label">Fertility Window</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Widgets -->
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="widget-grid">
+                <!-- Widget: Tracker -->
+                <div class="widget-card glass-card widget-tracker" id="widget-tracker" data-target="tracker">
+                    <div class="widget-icon-wrap">
+                        <div class="widget-icon gradient-pink">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Cycle Tracker</h3>
+                    <p>Log periods, track your cycle length, and view your calendar history</p>
+                    <div class="widget-footer">
+                        <span class="widget-badge" id="dashTrackerBadge">0 logs this week</span>
+                        <span class="widget-arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Widget: Predictions -->
+                <div class="widget-card glass-card widget-predictions" id="widget-predictions" data-target="predictions">
+                    <div class="widget-icon-wrap">
+                        <div class="widget-icon gradient-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6V12L16 14"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Predictions</h3>
+                    <p>AI-powered predictions for your next period, fertile window & ovulation</p>
+                    <div class="widget-footer">
+                        <span class="widget-badge">92% accuracy</span>
+                        <span class="widget-arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Widget: Ovulation Tracker -->
+                <div class="widget-card glass-card widget-ovulation" id="widget-ovulation" data-target="ovulation">
+                    <div class="widget-icon-wrap">
+                        <div class="widget-icon gradient-purple" style="background: var(--grad-coral);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+                                <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Ovulation Tracker</h3>
+                    <p id="dashOvulationWidgetText">Log basal body temperature, cervical mucus, and test kits to track ovulation.</p>
+                    <div class="widget-footer">
+                        <span class="widget-badge" id="dashOvulationBadge">Next: —</span>
+                        <span class="widget-arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Widget: Symptom Checker -->
+                <div class="widget-card glass-card widget-symptoms" id="widget-symptoms" data-target="symptoms">
+                    <div class="widget-icon-wrap">
+                        <div class="widget-icon gradient-coral">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Symptom Checker</h3>
+                    <p>Log daily symptoms, moods, and track patterns across your cycle</p>
+                    <div class="widget-footer">
+                        <span class="widget-badge">12 symptoms tracked</span>
+                        <span class="widget-arrow">→</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Pattern Analysis & Personal Insights Widget -->
+            <div class="pattern-analysis-card glass-card" style="margin-bottom: 1.25rem; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">🤖 AI Pattern Analysis & Personal Insights</h2>
+                    <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: var(--purple-soft); color: var(--purple); border-radius: var(--radius-sm); font-weight: 600;">Personalized Health Engine</span>
+                </div>
+                <div class="pattern-analysis-grid" id="dashPatternList">
+                    <!-- Dynamically populated based on logs -->
+                </div>
+            </div>
+
+            <!-- Insights & Recent Activity -->
+            <div class="dashboard-bottom-grid">
+                <div class="insights-card glass-card">
+                    <h2 class="section-title">Cycle Insights</h2>
+                    <div class="insight-list" id="dashInsightList">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="recent-activity-card glass-card">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <div class="activity-list" id="dashActivityList">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TRACKER ==================== -->
+        <section class="page" id="page-tracker">
+            <div class="page-header">
+                <div>
+                    <h1>Cycle Tracker 📅</h1>
+                    <p class="page-subtitle">Tap calendar days to log your period</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button class="btn-period-toggle" id="btnPeriodToggle">
+                        <span class="period-toggle-dot"></span>
+                        <span id="periodToggleText">Start Period</span>
+                    </button>
+                    <button class="btn-period-toggle" id="btnPregnancyToggle" style="background: rgba(129, 140, 248, 0.12); border-color: rgba(129, 140, 248, 0.3); color: var(--indigo);">
+                        <span class="period-toggle-dot" style="background: var(--indigo);"></span>
+                        <span id="pregnancyToggleText">Pregnancy Mode</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tracker-layout">
+                <div class="calendar-card glass-card">
+                    <div class="calendar-header">
+                        <button class="cal-nav" id="calPrev" aria-label="Previous month">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2 id="calMonthYear">June 2026</h2>
+                        <button class="cal-nav" id="calNext" aria-label="Next month">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                    <div class="calendar-weekdays">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div class="calendar-legend">
+                        <span class="legend-item"><span class="legend-dot legend-period"></span>Period</span>
+                        <span class="legend-item"><span class="legend-dot legend-fertile"></span>Fertile</span>
+                        <span class="legend-item"><span class="legend-dot legend-ovulation"></span>Ovulation</span>
+                        <span class="legend-item"><span class="legend-dot legend-predicted"></span>Predicted</span>
+                    </div>
+                </div>
+
+                <div class="tracker-sidebar">
+                    <!-- Day Detail Panel -->
+                    <div class="day-detail-card glass-card" id="dayDetailCard">
+                        <div class="day-detail-header">
+                            <h3 id="dayDetailTitle">Select a day</h3>
+                            <span class="day-detail-badge" id="dayDetailBadge"></span>
+                        </div>
+                        <div class="day-detail-body" id="dayDetailBody">
+                            <p class="day-detail-empty">Tap a day on the calendar to view or edit details</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Panel -->
+                    <div class="tracker-insights-card glass-card">
+                        <h3>🤖 AI Insights</h3>
+                        <div class="tracker-insight-list" id="trackerInsightList">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Cycle History -->
+                    <div class="cycle-history-card glass-card">
+                        <h3>Cycle History</h3>
+                        <div class="history-list" id="cycleHistoryList">
+                            <p class="history-empty">No cycles recorded yet. Start logging to see your history.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PREDICTIONS ==================== -->
+        <section class="page" id="page-predictions">
+            <div class="page-header">
+                <div>
+                    <h1>Predictions 🔮</h1>
+                    <p class="page-subtitle">AI-powered cycle and fertility forecasts</p>
+                </div>
+                <div class="accuracy-badge glass-card">
+                    <span class="accuracy-number">92%</span>
+                    <span class="accuracy-label">Prediction Accuracy</span>
+                </div>
+            </div>
+
+            <!-- Prediction Cards -->
+            <div class="prediction-cards">
+                <div class="pred-card glass-card pred-period">
+                    <div class="pred-icon-wrap">
+                        <div class="pred-icon gradient-pink">🩸</div>
+                    </div>
+                    <div class="pred-info">
+                        <h3>Next Period</h3>
+                        <span class="pred-date">June 23, 2026</span>
+                        <span class="pred-countdown">15 days away</span>
+                    </div>
+                    <div class="pred-confidence">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: 94%"></div>
+                        </div>
+                        <span>94% confidence</span>
+                    </div>
+                </div>
+
+                <div class="pred-card glass-card pred-fertile">
+                    <div class="pred-icon-wrap">
+                        <div class="pred-icon gradient-purple">🥚</div>
+                    </div>
+                    <div class="pred-info">
+                        <h3>Fertile Window</h3>
+                        <span class="pred-date">June 11 – 16, 2026</span>
+                        <span class="pred-countdown">Starts in 3 days</span>
+                    </div>
+                    <div class="pred-confidence">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: 88%"></div>
+                        </div>
+                        <span>88% confidence</span>
+                    </div>
+                </div>
+
+                <div class="pred-card glass-card pred-ovulation">
+                    <div class="pred-icon-wrap">
+                        <div class="pred-icon gradient-coral">✨</div>
+                    </div>
+                    <div class="pred-info">
+                        <h3>Ovulation Day</h3>
+                        <span class="pred-date">June 14, 2026</span>
+                        <span class="pred-countdown">6 days away</span>
+                    </div>
+                    <div class="pred-confidence">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: 85%"></div>
+                        </div>
+                        <span>85% confidence</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cycle Length Trend & AI Chatbot Grid -->
+            <div class="prediction-details-grid">
+                <!-- Left Column -->
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div class="trend-card glass-card">
+                        <h3>Cycle Length Trend</h3>
+                        <div class="chart-area">
+                            <div class="bar-chart">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+                        <div class="trend-summary">
+                            <span>Average: <strong id="trendAvgVal">28.2 days</strong></span>
+                            <span>Variation: <strong id="trendVarVal">±1.2 days</strong></span>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Forecast Card -->
+                    <div class="ai-forecast-card glass-card" style="padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem;">🤖 AI Forecasting Model</h3>
+                            <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; background: var(--pink-soft); color: var(--pink); border-radius: var(--radius-sm); font-weight: 600;">Bayesian Predictor v2.4</span>
+                        </div>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.85rem;">
+                            Our machine learning model analyzes your logged history (cycle variability, BBT curves, and cervical mucus consistency) to deliver personalized forecasts.
+                        </p>
+                        <div class="forecast-factors" style="display: flex; flex-direction: column; gap: 0.65rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.65rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                                <span style="font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Baseline Regularity</span>
+                                <span id="forecastRegularity" style="font-size: 0.75rem; font-weight: 600; color: var(--green);">High</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.65rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                                <span style="font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Sympto-Thermal Sync</span>
+                                <span id="forecastSymptoThermal" style="font-size: 0.75rem; font-weight: 600; color: var(--pink);">Active (BBT logged)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.65rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                                <span style="font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Ovulation Confidence</span>
+                                <span id="forecastOvulationConf" style="font-size: 0.75rem; font-weight: 600; color: var(--purple);">85%</span>
+                            </div>
+                        </div>
+                        <div id="aiPredictionDetailedInsight" style="margin-top: 0.85rem; padding: 0.75rem; background: rgba(168, 85, 247, 0.06); border-radius: var(--radius-sm); border: 1px dashed rgba(168, 85, 247, 0.25); font-size: 0.72rem; color: var(--text-primary); line-height: 1.45;">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div class="pregnancy-card glass-card">
+                        <h3>Pregnancy Probability</h3>
+                        <div class="pregnancy-gauge">
+                            <svg viewBox="0 0 180 100" class="gauge-svg">
+                                <defs>
+                                    <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#6EE7B7"/>
+                                        <stop offset="50%" stop-color="#FBBF24"/>
+                                        <stop offset="100%" stop-color="#F87171"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 15 90 A 75 75 0 0 1 165 90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+                                <path d="M 15 90 A 75 75 0 0 1 165 90" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="236" stroke-dashoffset="141"/>
+                            </svg>
+                            <div class="gauge-label">
+                                <span class="gauge-value">Medium</span>
+                                <span class="gauge-sub">Based on cycle day 11</span>
+                            </div>
+                        </div>
+                        <div class="pregnancy-note">
+                            <p>🌟 You're approaching your fertile window. Probability will increase over the next 3–5 days.</p>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Doctor Contact -->
+                    <div class="emergency-contact-card" id="emergencyDoctorCard" style="display: none;">
+                        <div class="emergency-icon">🚑</div>
+                        <div class="emergency-info">
+                            <h4>Emergency Contact</h4>
+                            <p id="emergencyDoctorName">Your saved doctor</p>
+                        </div>
+                        <button class="btn-emergency-call" id="btnEmergencyCall">Call My Doctor</button>
+                    </div>
+                    
+                    <!-- Chatbot Card -->
+                    <div class="chatbot-card glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; min-height: 380px;">
+                        <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.75rem;">
+                            <div style="width: 32px; height: 32px; background: var(--grad-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">🤖</div>
+                            <div>
+                                <h3 style="font-size: 0.95rem; margin: 0;">EveAI Assistant</h3>
+                                <span style="font-size: 0.65rem; color: var(--green); display: flex; align-items: center; gap: 0.25rem;"><span style="width:6px; height:6px; background:var(--green); border-radius:50%; display:inline-block;"></span>Online</span>
+                            </div>
+                        </div>
+                        
+                        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass); max-height: 240px; min-height: 180px; font-size: 0.78rem;">
+                            <!-- Dynamically populated -->
+                        </div>
+                        
+                        <div id="chatSuggestions" style="display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0; font-size: 0.7rem;">
+                            <button class="chat-sugg-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); padding: 0.3rem 0.5rem; border-radius: var(--radius-sm); color: var(--text-secondary); transition: all 0.2s;">When is my next period?</button>
+                            <button class="chat-sugg-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); padding: 0.3rem 0.5rem; border-radius: var(--radius-sm); color: var(--text-secondary); transition: all 0.2s;">How are fertile days calculated?</button>
+                            <button class="chat-sugg-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); padding: 0.3rem 0.5rem; border-radius: var(--radius-sm); color: var(--text-secondary); transition: all 0.2s;">Why did my BBT spike?</button>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; padding-top: 0.25rem;">
+                            <input type="text" id="chatInput" placeholder="Ask Eve about your predictions..." style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.78rem; outline: none; transition: border-color 0.2s; color: var(--text-primary);" />
+                            <button id="btnSendChat" style="background: var(--grad-primary); border-radius: var(--radius-sm); padding: 0 0.85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(168,85,247,0.25); color: #fff;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:16px; height:16px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== OVULATION TRACKER ==================== -->
+        <section class="page" id="page-ovulation">
+            <div class="page-header">
+                <div>
+                    <h1>Ovulation Tracker 🥚</h1>
+                    <p class="page-subtitle">Track body indicators to accurately predict ovulation</p>
+                </div>
+            </div>
+
+            <div class="tracker-layout">
+                <!-- Left: Hero Card + Log Form -->
+                <div class="ovulation-sidebar" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- Hero card -->
+                    <div class="glass-card pred-card pred-ovulation" style="margin-bottom: 0;">
+                        <div class="pred-icon-wrap">
+                            <div class="pred-icon gradient-coral" style="font-size:1.5rem; display:flex; align-items:center; justify-content:center;">🥚</div>
+                        </div>
+                        <div class="pred-info">
+                            <h3>Next Ovulation</h3>
+                            <span class="pred-date" id="ovulationNextDate">—</span>
+                            <span class="pred-countdown" id="ovulationNextCountdown">No cycle data</span>
+                        </div>
+                        <div class="pred-confidence">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="ovulationConfidenceFill" style="width: 0%"></div>
+                            </div>
+                            <span id="ovulationConfidenceText">0% confidence</span>
+                        </div>
+                    </div>
+
+                    <!-- Daily Symptoms/Basal Body Temp Log Form -->
+                    <div class="glass-card day-detail-card">
+                        <div class="day-detail-header">
+                            <h3>Log Fertility Signs</h3>
+                            <span class="day-detail-badge show ovulation" id="ovulationLogBadge">Today</span>
+                        </div>
+                        <div class="day-log-form" id="ovulationLogForm">
+                            <!-- BBT Log -->
+                            <div class="log-section">
+                                <label>Basal Body Temperature (BBT)</label>
+                                <div class="bbt-slider-wrap" style="margin-top: 0.5rem;">
+                                    <input type="range" min="96.5" max="99.9" step="0.1" value="97.8" class="energy-slider" id="bbtSlider" style="background: linear-gradient(to right, var(--blue), var(--amber), var(--pink));">
+                                    <div class="energy-labels" style="margin-top: 0.25rem;">
+                                        <span>96.5°F</span>
+                                        <span class="energy-value" id="bbtValue">97.8°F</span>
+                                        <span>99.9°F</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cervical Mucus Log -->
+                            <div class="log-section">
+                                <label>Cervical Mucus</label>
+                                <div class="flow-buttons" id="mucusBtnGroup" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                    <button class="flow-btn" data-mucus="dry" style="flex: 1 1 45%; padding: 0.45rem;">Dry</button>
+                                    <button class="flow-btn" data-mucus="sticky" style="flex: 1 1 45%; padding: 0.45rem;">Sticky</button>
+                                    <button class="flow-btn" data-mucus="creamy" style="flex: 1 1 45%; padding: 0.45rem;">Creamy</button>
+                                    <button class="flow-btn" data-mucus="eggwhite" style="flex: 1 1 45%; padding: 0.45rem;">Eggwhite</button>
+                                </div>
+                            </div>
+
+                            <!-- LH Kit result Log -->
+                            <div class="log-section">
+                                <label>LH Urine Test Result</label>
+                                <div class="flow-buttons" id="lhBtnGroup" style="display: flex; gap: 0.5rem;">
+                                    <button class="flow-btn" data-lh="negative" style="flex: 1; padding: 0.45rem;">Negative (−)</button>
+                                    <button class="flow-btn" data-lh="positive" style="flex: 1; padding: 0.45rem;">Positive (+)</button>
+                                </div>
+                            </div>
+
+                            <button class="btn-primary" id="btnSaveOvulation" style="margin-top: 0.5rem;">Save Today's Signs</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Chart + Tips -->
+                <div class="ovulation-main-panel" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- BBT Trend Chart -->
+                    <div class="trend-card glass-card" style="padding: 1.5rem; margin-bottom: 0;">
+                        <h3>Basal Body Temperature (°F)</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">BBT typically spikes by 0.5°F – 1.0°F right after ovulation occurs</p>
+                        
+                        <div class="chart-area" style="height: 160px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem; position: relative; margin-bottom: 0.5rem;">
+                            <!-- CSS columns representing temp trend -->
+                            <div class="bbt-chart-container" id="bbtChartContainer" style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: space-around;">
+                                <!-- Dynamically Rendered Bars representing BBT -->
+                            </div>
+                        </div>
+                        <div class="trend-summary" id="bbtTrendSummary">
+                            <span>Last 7 entries: <strong>—</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Conception Insights -->
+                    <div class="tracker-insights-card glass-card" style="padding: 1.5rem;">
+                        <h3>💡 Conception & Fertility Insights</h3>
+                        <div class="tracker-insight-list" id="ovulationInsightsList">
+                            <!-- Dynamic Insights -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SYMPTOM CHECKER ==================== -->
+        <section class="page" id="page-symptoms">
+            <div class="page-header">
+                <div>
+                    <h1>Symptom Checker 💜</h1>
+                    <p class="page-subtitle">Log and track your daily symptoms and mood</p>
+                </div>
+            </div>
+
+            <div class="symptoms-layout">
+                <!-- Left Column -->
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- Today's Log -->
+                    <div class="symptom-log-card glass-card">
+                        <h3>How are you feeling today?</h3>
+                        <div class="mood-selector">
+                            <button class="mood-btn" data-mood="great"><span class="mood-emoji">😄</span><span>Great</span></button>
+                            <button class="mood-btn active" data-mood="good"><span class="mood-emoji">😊</span><span>Good</span></button>
+                            <button class="mood-btn" data-mood="okay"><span class="mood-emoji">😐</span><span>Okay</span></button>
+                            <button class="mood-btn" data-mood="low"><span class="mood-emoji">😔</span><span>Low</span></button>
+                            <button class="mood-btn" data-mood="bad"><span class="mood-emoji">😣</span><span>Bad</span></button>
+                        </div>
+
+                        <h4>Physical Symptoms</h4>
+                        <div class="symptom-tags">
+                            <button class="symptom-tag active">Cramps</button>
+                            <button class="symptom-tag">Bloating</button>
+                            <button class="symptom-tag active">Headache</button>
+                            <button class="symptom-tag">Fatigue</button>
+                            <button class="symptom-tag">Backache</button>
+                            <button class="symptom-tag">Breast Tenderness</button>
+                            <button class="symptom-tag">Nausea</button>
+                            <button class="symptom-tag">Acne</button>
+                            <button class="symptom-tag active">Insomnia</button>
+                            <button class="symptom-tag">Dizziness</button>
+                        </div>
+
+                        <h4>Emotional Symptoms</h4>
+                        <div class="symptom-tags">
+                            <button class="symptom-tag">Anxiety</button>
+                            <button class="symptom-tag active">Mood Swings</button>
+                            <button class="symptom-tag">Irritability</button>
+                            <button class="symptom-tag">Sadness</button>
+                            <button class="symptom-tag">Stress</button>
+                            <button class="symptom-tag">Brain Fog</button>
+                        </div>
+
+                        <h4>Energy Level</h4>
+                        <div class="energy-slider-wrap">
+                            <input type="range" min="1" max="10" value="6" class="energy-slider" id="energySlider">
+                            <div class="energy-labels">
+                                <span>Low</span>
+                                <span class="energy-value" id="energyValue">6/10</span>
+                                <span>High</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" id="btnSaveSymptoms" style="margin-top: 1.2rem;">Save Today's Log</button>
+                    </div>
+                    
+                    <!-- AI Condition Matcher Card -->
+                    <div class="condition-matcher-card glass-card" style="padding: 1.5rem;" id="conditionMatcherCard">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem;">🤖 AI Condition Analyzer</h3>
+                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--purple-soft); color: var(--purple); border-radius: var(--radius-sm); font-weight: 600;">Symptom Checker v1.2</span>
+                        </div>
+                        
+                        <div id="conditionMatcherBody">
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                                Analyze your logged cycle lengths, temperature profiles, and physical symptoms to estimate correlation with common gynecological conditions.
+                            </p>
+                            
+                            <div style="padding: 0.65rem 0.85rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-glass); font-size: 0.75rem; margin-bottom: 1rem;">
+                                <strong style="color: var(--pink); font-size: 0.72rem; display: block; text-transform: uppercase; margin-bottom: 0.25rem;">Currently Evaluating:</strong>
+                                <span id="assessedSymptomsList" style="color: var(--text-primary);">No active symptoms logged today.</span>
+                            </div>
+
+                            <div class="conditions-match-list" style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem;">
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">PCOS (Polycystic Ovary Syndrome)</strong>
+                                        <span id="pcosPct" style="font-weight: 600; color: var(--green);">10% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="pcosBar" class="confidence-fill" style="width: 10%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">Endometriosis</strong>
+                                        <span id="endoPct" style="font-weight: 600; color: var(--green);">15% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="endoBar" class="confidence-fill" style="width: 15%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">Uterine Fibroids</strong>
+                                        <span id="fibroidPct" style="font-weight: 600; color: var(--green);">5% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="fibroidBar" class="confidence-fill" style="width: 5%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">Perimenopause</strong>
+                                        <span id="periPct" style="font-weight: 600; color: var(--green);">5% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="periBar" class="confidence-fill" style="width: 5%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">PMDD (Premenstrual Dysphoric Disorder)</strong>
+                                        <span id="pmddPct" style="font-weight: 600; color: var(--green);">5% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="pmddBar" class="confidence-fill" style="width: 5%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="condition-row" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                        <strong style="color: var(--text-primary);">Adenomyosis</strong>
+                                        <span id="adenoPct" style="font-weight: 600; color: var(--green);">5% Match</span>
+                                    </div>
+                                    <div class="confidence-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="adenoBar" class="confidence-fill" style="width: 5%; background: var(--green); height: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn-primary" id="btnStartAssessment" style="width: 100%; background: var(--grad-purple); box-shadow: 0 4px 16px rgba(168,85,247,0.2);">📋 Start Detailed Assessment</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Symptom History -->
+                <div class="symptom-history-section" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div class="symptom-timeline-card glass-card">
+                        <h3>Symptom Timeline</h3>
+                        <div class="timeline" id="symptomTimeline">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <div class="symptom-summary-card glass-card">
+                        <h3>Monthly Summary</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-count" id="summaryCramps">0</span>
+                                <span class="summary-label">Days with Cramps</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-count" id="summaryHeadache">0</span>
+                                <span class="summary-label">Days with Headache</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-count" id="summaryAvgEnergy">—</span>
+                                <span class="summary-label">Avg Energy Level</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-count" id="summaryCommonMood">—</span>
+                                <span class="summary-label">Most Common Mood</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SETTINGS ==================== -->
+        <section class="page" id="page-settings">
+            <div class="page-header">
+                <div>
+                    <h1>Settings ⚙️</h1>
+                    <p class="page-subtitle">Customize your EveAI experience</p>
+                </div>
+            </div>
+
+            <div class="settings-layout">
+                <!-- Profile -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <h3>Profile</h3>
+                    </div>
+                    <div class="settings-row">
+                        <label>Display Name</label>
+                        <input type="text" class="settings-input" id="settingsDisplayName" value="Alok" />
+                    </div>
+                    <div class="settings-row">
+                        <label>Date of Birth</label>
+                        <input type="date" class="settings-input" id="settingsDob" value="1998-03-15" />
+                    </div>
+                    <div class="settings-row">
+                        <label>Email</label>
+                        <input type="email" class="settings-input" id="settingsEmail" value="alok@example.com" />
+                    </div>
+                </div>
+
+                <!-- Cycle Settings -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6V12L16 14"/></svg>
+                        <h3>Cycle Preferences</h3>
+                    </div>
+                    <div class="settings-row">
+                        <label>Average Cycle Length</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" id="cycleMinus">−</button>
+                            <span class="stepper-value" id="cycleLength">28 days</span>
+                            <button class="stepper-btn" id="cyclePlus">+</button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <label>Average Period Duration</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" id="periodMinus">−</button>
+                            <span class="stepper-value" id="periodLength">5 days</span>
+                            <button class="stepper-btn" id="periodPlus">+</button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <label>Luteal Phase Length</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" id="lutealMinus">−</button>
+                            <span class="stepper-value" id="lutealLength">14 days</span>
+                            <button class="stepper-btn" id="lutealPlus">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <h3>Notifications</h3>
+                    </div>
+                    <div class="settings-row toggle-row">
+                        <label>Period Reminders</label>
+                        <div class="toggle active" id="togglePeriod"><div class="toggle-knob"></div></div>
+                    </div>
+                    <div class="settings-row toggle-row">
+                        <label>Fertile Window Alerts</label>
+                        <div class="toggle active" id="toggleFertile"><div class="toggle-knob"></div></div>
+                    </div>
+                    <div class="settings-row toggle-row">
+                        <label>Symptom Log Reminders</label>
+                        <div class="toggle" id="toggleSymptom"><div class="toggle-knob"></div></div>
+                    </div>
+                    <div class="settings-row toggle-row">
+                        <label>Weekly Summary Report</label>
+                        <div class="toggle active" id="toggleSummary"><div class="toggle-knob"></div></div>
+                    </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <h3>Appearance</h3>
+                    </div>
+                    <div class="settings-row toggle-row">
+                        <label>Dark Mode</label>
+                        <div class="toggle active" id="toggleDark"><div class="toggle-knob"></div></div>
+                    </div>
+                    <div class="settings-row">
+                        <label>Accent Color</label>
+                        <div class="color-options">
+                            <button class="color-btn active" style="background: linear-gradient(135deg, #E879A8, #A855F7);" data-color="pink"></button>
+                            <button class="color-btn" style="background: linear-gradient(135deg, #60A5FA, #818CF8);" data-color="blue"></button>
+                            <button class="color-btn" style="background: linear-gradient(135deg, #34D399, #6EE7B7);" data-color="green"></button>
+                            <button class="color-btn" style="background: linear-gradient(135deg, #FB923C, #F87171);" data-color="orange"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Settings -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+                            <path d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/>
+                        </svg>
+                        <h3>AI Assistant Settings</h3>
+                    </div>
+                    <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 0.5rem;">
+                        <label style="margin-bottom: 0.1rem;">OpenAI API Key</label>
+                        <div style="display: flex; gap: 0.5rem; width: 100%;">
+                            <input type="password" class="settings-input" id="settingsApiKey" placeholder="Add API Key" style="flex: 1; min-width: 0;" />
+                            <button class="btn-primary" id="btnSaveApiKey" style="padding: 0 1rem; font-size: 0.8rem;">Save</button>
+                        </div>
+                        <p style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.45; margin-top: 0.25rem;">
+                            Adding an API key unlocks advanced AI responses. EveAI works normally without one.
+                        </p>
+                        
+                        <!-- AI Mode Status Card Container -->
+                        <div id="aiStatusContainer" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Doctor -->
+                <div class="settings-card glass-card doctor-settings-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        <h3>My Doctor</h3>
+                    </div>
+
+                    <!-- Doctor Display (shown when saved) -->
+                    <div id="doctorDisplayView" style="display: none;">
+                        <div class="doctor-display-card">
+                            <div class="doctor-card-header">
+                                <div class="doctor-avatar">👩⚕️</div>
+                                <div>
+                                    <div class="doctor-card-name" id="doctorDisplayName">Dr. Sarah Johnson</div>
+                                    <div class="doctor-card-spec" id="doctorDisplaySpec">Gynecologist</div>
+                                </div>
+                            </div>
+                            <div class="doctor-card-details">
+                                <div class="doctor-detail-row">
+                                    <span class="detail-icon">📞</span>
+                                    <span id="doctorDisplayPhone">+91 XXXXX XXXXX</span>
+                                </div>
+                                <div class="doctor-detail-row" id="doctorDisplayClinicRow">
+                                    <span class="detail-icon">🏥</span>
+                                    <span id="doctorDisplayClinic">City Women's Hospital</span>
+                                </div>
+                                <div class="doctor-detail-row" id="doctorDisplayNotesRow" style="display: none;">
+                                    <span class="detail-icon">📝</span>
+                                    <span id="doctorDisplayNotes"></span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-actions">
+                                <button class="btn-call-doctor" id="btnCallDoctor">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                    Call Doctor
+                                </button>
+                                <button class="btn-edit-doctor" id="btnEditDoctor">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Empty State (shown when no doctor saved) -->
+                    <div id="doctorEmptyView">
+                        <div class="doctor-empty-state">
+                            <div class="doctor-empty-icon">👩⚕️</div>
+                            <div class="doctor-empty-title">No doctor added yet</div>
+                            <div class="doctor-empty-subtitle">Save your gynecologist or healthcare provider for quick access whenever you need assistance.</div>
+                            <button class="btn-add-doctor" id="btnAddDoctor">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Add Doctor
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Form (hidden by default, shown on Add/Edit) -->
+                    <div id="doctorFormView" style="display: none;">
+                        <div class="doctor-form">
+                            <div class="doctor-form-group">
+                                <label>Doctor Name *</label>
+                                <input type="text" id="doctorName" placeholder="e.g. Dr. Sarah Johnson" />
+                            </div>
+                            <div class="doctor-form-row">
+                                <div class="doctor-form-group">
+                                    <label>Specialization *</label>
+                                    <input type="text" id="doctorSpec" placeholder="e.g. Gynecologist" />
+                                </div>
+                                <div class="doctor-form-group">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" id="doctorPhone" placeholder="e.g. +91 98765 43210" />
+                                </div>
+                            </div>
+                            <div class="doctor-form-group">
+                                <label>Clinic / Hospital Name</label>
+                                <input type="text" id="doctorClinic" placeholder="e.g. City Women's Hospital (Optional)" />
+                            </div>
+                            <div class="doctor-form-group">
+                                <label>Notes</label>
+                                <textarea id="doctorNotes" placeholder="Appointment details, special instructions... (Optional)"></textarea>
+                            </div>
+                            <button class="btn-save-doctor" id="btnSaveDoctor">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                Save Doctor Information
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data & Privacy -->
+                <div class="settings-card glass-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <h3>Data & Privacy</h3>
+                    </div>
+                    <div class="settings-row">
+                        <label>Export Data</label>
+                        <button class="btn-secondary" id="btnExportData" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download Reports (Excel & PDF)
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <label>Share Health Data</label>
+                        <button class="btn-secondary" id="btnShareHealthData" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            Share with Doctor / Apps
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <label>Delete All Data</label>
+                        <button class="btn-danger" id="btnDeleteAllData">Delete Everything</button>
+                    </div>
+                </div>
+
+                <!-- Automatic Doctor Reports -->
+                <div class="settings-card glass-card auto-reports-card">
+                    <div class="settings-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                        <h3>Automatic Doctor Reports</h3>
+                    </div>
+                    <p class="auto-reports-subtitle">Securely send health summaries to your healthcare provider.</p>
+
+                    <!-- Master Toggle -->
+                    <div class="auto-reports-toggle-row">
+                        <div class="auto-reports-toggle-info">
+                            <span class="auto-reports-status" id="autoReportsStatus">Daily reports are not being shared.</span>
+                        </div>
+                        <div class="toggle" id="toggleAutoReports"><div class="toggle-knob"></div></div>
+                    </div>
+
+                    <!-- Config Panel (shown when enabled) -->
+                    <div class="auto-reports-config" id="autoReportsConfig" style="display: none;">
+
+                        <!-- Doctor Card -->
+                        <div class="auto-reports-doctor" id="autoReportsDoctorCard">
+                            <div class="auto-reports-doctor-avatar">👩⚕️</div>
+                            <div class="auto-reports-doctor-info">
+                                <h4 id="autoReportsDoctorName">No doctor saved</h4>
+                                <p id="autoReportsDoctorPhone">Add a doctor in My Doctor settings</p>
+                            </div>
+                            <button class="btn-auto-reports-change" id="btnAutoReportsChangeDoctor">Change</button>
+                        </div>
+
+                        <!-- Frequency -->
+                        <div class="auto-reports-section">
+                            <h4 class="auto-reports-section-title">Report Frequency</h4>
+                            <div class="auto-reports-freq" id="autoReportsFreq">
+                                <label class="freq-option"><input type="radio" name="autoFreq" value="daily" /><span class="freq-pill">Daily</span></label>
+                                <label class="freq-option"><input type="radio" name="autoFreq" value="weekly" checked /><span class="freq-pill">Weekly <span class="freq-rec">★</span></span></label>
+                                <label class="freq-option"><input type="radio" name="autoFreq" value="monthly" /><span class="freq-pill">Monthly</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Time -->
+                        <div class="auto-reports-section">
+                            <h4 class="auto-reports-section-title">Report Time</h4>
+                            <div class="auto-reports-time" id="autoReportsTime">
+                                <label class="time-option"><input type="radio" name="autoTime" value="20:00" /><span class="freq-pill">⏰ 8:00 PM</span></label>
+                                <label class="time-option"><input type="radio" name="autoTime" value="21:00" checked /><span class="freq-pill">⏰ 9:00 PM</span></label>
+                                <label class="time-option"><input type="radio" name="autoTime" value="22:00" /><span class="freq-pill">⏰ 10:00 PM</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Data Included -->
+                        <div class="auto-reports-section">
+                            <h4 class="auto-reports-section-title">Data Included</h4>
+                            <div class="auto-reports-data" id="autoReportsData">
+                                <label class="share-checkbox"><input type="checkbox" value="cycles" checked /><span class="check-mark"></span><span class="check-label">📅 Cycle Info</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="symptoms" checked /><span class="check-mark"></span><span class="check-label">💊 Symptoms</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="mood" checked /><span class="check-mark"></span><span class="check-label">😊 Mood</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="pregnancy" /><span class="check-mark"></span><span class="check-label">🤰 Pregnancy</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="medications" /><span class="check-mark"></span><span class="check-label">💉 Medications</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="weight" /><span class="check-mark"></span><span class="check-label">⚖️ Weight</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="water" /><span class="check-mark"></span><span class="check-label">💧 Water</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="ai_insights" checked /><span class="check-mark"></span><span class="check-label">🤖 AI Insights</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="notes" /><span class="check-mark"></span><span class="check-label">📝 Notes</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Sharing Destinations -->
+                        <div class="auto-reports-section">
+                            <h4 class="auto-reports-section-title">Sharing Destination</h4>
+                            <div class="auto-reports-data" id="autoReportsDest">
+                                <label class="share-checkbox"><input type="checkbox" value="doctor" checked /><span class="check-mark"></span><span class="check-label">👩⚕️ Saved Doctor</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="email" /><span class="check-mark"></span><span class="check-label">📧 Email</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="whatsapp" /><span class="check-mark"></span><span class="check-label">💬 WhatsApp</span></label>
+                                <label class="share-checkbox"><input type="checkbox" value="pdf_export" /><span class="check-mark"></span><span class="check-label">📄 PDF Export</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Activity History -->
+                        <div class="auto-reports-section">
+                            <h4 class="auto-reports-section-title">Recent Shared Reports</h4>
+                            <div class="auto-reports-history" id="autoReportsHistory">
+                                <p class="history-empty-text">No reports shared yet. Reports will appear here once automatic sharing begins.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== DOCTOR CALL BOTTOM SHEET ===== -->
+    <div class="doctor-bottom-sheet-overlay" id="doctorCallSheet">
+        <div class="doctor-bottom-sheet">
+            <div class="bottom-sheet-handle"></div>
+            <div class="bottom-sheet-icon">📞</div>
+            <div class="bottom-sheet-title">Contact Your Doctor</div>
+            <div class="bottom-sheet-message" id="callSheetMessage">Do you want to call Dr. Sarah Johnson?</div>
+            <div class="bottom-sheet-actions">
+                <button class="btn-sheet-cancel" id="btnCallCancel">Cancel</button>
+                <button class="btn-sheet-call" id="btnCallConfirm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Call Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SHARE HEALTH DATA BOTTOM SHEET ===== -->
+    <div class="share-sheet-overlay" id="shareSheetOverlay">
+        <div class="share-sheet">
+            <div class="bottom-sheet-handle"></div>
+
+            <!-- Step 1: Data Selection -->
+            <div class="share-step" id="shareStep1">
+                <div class="share-sheet-header">
+                    <div class="share-sheet-icon">🔗</div>
+                    <h2 class="share-sheet-title">Share Your Health Data</h2>
+                    <p class="share-sheet-subtitle">Choose what information you'd like to share</p>
+                </div>
+
+                <div class="share-data-options" id="shareDataOptions">
+                    <label class="share-checkbox"><input type="checkbox" value="cycles" checked /><span class="check-mark"></span><span class="check-label">📅 Cycle History</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="periods" checked /><span class="check-mark"></span><span class="check-label">🩸 Period Logs</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="pregnancy" /><span class="check-mark"></span><span class="check-label">🤰 Pregnancy Progress</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="symptoms" checked /><span class="check-mark"></span><span class="check-label">💊 Symptoms</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="mood" /><span class="check-mark"></span><span class="check-label">😊 Mood Tracking</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="medications" /><span class="check-mark"></span><span class="check-label">💉 Medication Records</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="water" /><span class="check-mark"></span><span class="check-label">💧 Water Intake</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="weight" /><span class="check-mark"></span><span class="check-label">⚖️ Weight Tracking</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="notes" /><span class="check-mark"></span><span class="check-label">📝 Health Notes</span></label>
+                    <label class="share-checkbox"><input type="checkbox" value="ai_reports" checked /><span class="check-mark"></span><span class="check-label">🤖 AI Health Reports</span></label>
+                </div>
+
+                <div class="share-select-actions">
+                    <button class="btn-share-select" id="btnShareSelectAll">Select All</button>
+                    <button class="btn-share-select" id="btnShareDeselectAll">Deselect All</button>
+                </div>
+
+                <div class="share-format-section">
+                    <h3 class="share-format-title">Export Format</h3>
+                    <div class="share-format-options" id="shareFormatOptions">
+                        <label class="share-radio"><input type="radio" name="shareFormat" value="pdf" checked /><span class="radio-mark"></span><span class="radio-label">📄 PDF Report</span></label>
+                        <label class="share-radio"><input type="radio" name="shareFormat" value="csv" /><span class="radio-mark"></span><span class="radio-label">📊 CSV Spreadsheet</span></label>
+                        <label class="share-radio"><input type="radio" name="shareFormat" value="json" /><span class="radio-mark"></span><span class="radio-label">🔧 JSON Backup</span></label>
+                        <label class="share-radio"><input type="radio" name="shareFormat" value="text" /><span class="radio-mark"></span><span class="radio-label">📃 Text Summary</span></label>
+                    </div>
+                </div>
+
+                <div class="share-step-actions">
+                    <button class="btn-sheet-cancel" id="btnShareCancel1">Cancel</button>
+                    <button class="btn-sheet-call" id="btnShareContinue" style="gap: 0.4rem;">
+                        Continue
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Preview & Confirm -->
+            <div class="share-step" id="shareStep2" style="display: none;">
+                <div class="share-sheet-header">
+                    <div class="share-sheet-icon">📋</div>
+                    <h2 class="share-sheet-title">Preview Report</h2>
+                    <p class="share-sheet-subtitle">Review before sharing</p>
+                </div>
+
+                <div class="share-preview-stats">
+                    <div class="preview-stat"><span class="preview-stat-value" id="previewRecords">0</span><span class="preview-stat-label">Records</span></div>
+                    <div class="preview-stat"><span class="preview-stat-value" id="previewDateRange">—</span><span class="preview-stat-label">Date Range</span></div>
+                    <div class="preview-stat"><span class="preview-stat-value" id="previewFormat">PDF</span><span class="preview-stat-label">Format</span></div>
+                    <div class="preview-stat"><span class="preview-stat-value" id="previewSize">~0 KB</span><span class="preview-stat-label">Est. Size</span></div>
+                </div>
+
+                <!-- Doctor Quick Share -->
+                <div class="share-doctor-section" id="shareDoctorSection" style="display: none;">
+                    <div class="share-doctor-card">
+                        <div class="share-doctor-avatar">👩⚕️</div>
+                        <div class="share-doctor-info">
+                            <h4>Share With My Doctor</h4>
+                            <p id="shareDoctorName">Dr. Sarah Johnson</p>
+                        </div>
+                        <button class="btn-share-doctor" id="btnShareWithDoctor">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            Send Report
+                        </button>
+                    </div>
+                </div>
+
+                <div class="share-privacy-notice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Only share health information with trusted individuals and healthcare professionals.</span>
+                </div>
+
+                <div class="share-step-actions">
+                    <button class="btn-sheet-cancel" id="btnShareBack">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                        Back
+                    </button>
+                    <button class="btn-sheet-call" id="btnShareNow" style="gap: 0.4rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        Share Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Generating -->
+            <div class="share-step" id="shareStep3" style="display: none;">
+                <div class="share-generating">
+                    <div class="share-spinner"></div>
+                    <h3>Generating Report...</h3>
+                    <p id="shareProgressText">Preparing your health data</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Web Browser Fallback Options -->
+            <div class="share-step" id="shareStep4" style="display: none;">
+                <div class="share-sheet-header">
+                    <div class="share-sheet-icon">📤</div>
+                    <h2 class="share-sheet-title">Share Options</h2>
+                    <p class="share-sheet-subtitle">Select a destination to share your report</p>
+                </div>
+                
+                <div class="share-fallback-destinations" style="display: flex; flex-direction: column; gap: 0.65rem; padding: 0.5rem 0;">
+                    <a id="btnFallbackWhatsApp" target="_blank" class="share-fallback-btn" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.25); border-radius: 10px; color: #25D366; text-decoration: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        <span style="font-size: 1.1rem;">💬</span> Share via WhatsApp
+                    </a>
+                    <a id="btnFallbackTelegram" target="_blank" class="share-fallback-btn" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(0, 136, 204, 0.1); border: 1px solid rgba(0, 136, 204, 0.25); border-radius: 10px; color: #34B3F1; text-decoration: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        <span style="font-size: 1.1rem;">✈️</span> Share via Telegram
+                    </a>
+                    <a id="btnFallbackEmail" target="_blank" class="share-fallback-btn" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 10px; color: #C084FC; text-decoration: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        <span style="font-size: 1.1rem;">📧</span> Share via Email
+                    </a>
+                    <button id="btnFallbackDownload" class="share-fallback-btn" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); border-radius: 10px; color: var(--text-primary); font-size: 0.82rem; font-weight: 600; cursor: pointer; text-align: left; width: 100%; transition: background 0.2s; font-family: inherit;">
+                        <span style="font-size: 1.1rem;">📥</span> Download to Device
+                    </button>
+                </div>
+
+                <div class="share-step-actions" style="margin-top: 1rem;">
+                    <button class="btn-sheet-cancel" id="btnShareBackToStep2" style="width: 100%;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FLOATING ACTION BUTTON ===== -->
+    <div class="fab-container" id="fabContainer">
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-option" data-action="log-period" id="fabLogPeriod">
+                <span class="fab-option-icon">🩸</span>
+                <span class="fab-option-label">Log Period</span>
+            </button>
+            <button class="fab-option" data-action="log-symptom" id="fabLogSymptom">
+                <span class="fab-option-icon">💜</span>
+                <span class="fab-option-label">Log Symptom</span>
+            </button>
+            <button class="fab-option" data-action="log-mood" id="fabLogMood">
+                <span class="fab-option-icon">😊</span>
+                <span class="fab-option-label">Log Mood</span>
+            </button>
+        </div>
+        <button class="fab-btn" id="fabBtn" aria-label="Quick actions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- ===== EVEAI ASSISTANT FLOATING BUTTON ===== -->
+    <button class="assistant-fab" id="assistantFab" aria-label="EveAI Assistant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <circle cx="9" cy="9" r="1" fill="currentColor"/>
+            <circle cx="15" cy="9" r="1" fill="currentColor"/>
+            <path d="M9 13h6" stroke-width="1.5"/>
+        </svg>
+    </button>
+
+    <!-- ===== PREMIUM CHAT OVERLAY (ChatGPT style) ===== -->
+    <div class="chat-overlay" id="chatOverlay">
+        <div class="chat-overlay-backdrop" id="chatOverlayBackdrop"></div>
+        <div class="chat-container-premium">
+            <!-- Sidebar: Session History -->
+            <aside class="chat-sidebar" id="chatSidebar">
+                <div class="sidebar-top">
+                    <button class="btn-new-chat" id="btnNewChat">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        New Chat
+                    </button>
+                    <button class="sidebar-close-mobile" id="btnSidebarCloseMobile" aria-label="Close history">✕</button>
+                </div>
+                <div class="chat-history-list" id="chatHistoryList">
+                    <!-- Session items populated dynamically -->
+                </div>
+                <div class="sidebar-bottom-actions">
+                    <button class="btn-clear-all-chats" id="btnClearAllChats">Clear All Chats</button>
+                </div>
+            </aside>
+
+            <!-- Main Chat Area -->
+            <main class="chat-main">
+                <header class="chat-main-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <button class="btn-toggle-sidebar" id="btnToggleSidebar" aria-label="Toggle history">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="9" y1="3" x2="9" y2="21"/>
+                            </svg>
+                        </button>
+                        <div class="chat-header-info">
+                            <h2 id="chatHeaderTitle">EveAI Assistant <span class="badge-premium">v2.5</span></h2>
+                            <span class="status-online">Online</span>
+                        </div>
+                    </div>
+                    <button class="chat-close-btn" id="chatCloseBtn" aria-label="Close Chat">✕</button>
+                </header>
+
+                <!-- Message Feed -->
+                <div class="chat-feed" id="chatFeed">
+                    <!-- Dynamic chat messages -->
+                </div>
+
+                <!-- Attachment Preview Bar -->
+                <div class="attachment-preview-bar" id="attachmentPreviewBar" style="display: none;">
+                    <!-- Preview chips dynamically added -->
+                </div>
+
+                <!-- Input Footer -->
+                <footer class="chat-input-area">
+                    <div class="input-container-inner">
+                        <!-- Attachment Dropdown -->
+                        <div class="chat-attachment-dropdown" id="chatAttachmentDropdown">
+                            <button class="btn-attachment-toggle" id="btnAttachmentToggle" aria-label="Add resource">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                            </button>
+                            <div class="attachment-menu" id="attachmentMenu">
+                                <button class="attachment-menu-item" id="attachPhotoBtn">
+                                    <span>📸</span> Take Photo
+                                </button>
+                                <button class="attachment-menu-item" id="attachGalleryBtn">
+                                    <span>🖼️</span> Choose Image
+                                </button>
+                                <button class="attachment-menu-item" id="attachDocBtn">
+                                    <span>📄</span> Upload Document
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Inputs -->
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+                        <input type="file" id="galleryInput" accept="image/*" style="display: none;">
+                        <input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt,.csv" style="display: none;">
+
+                        <!-- Textarea -->
+                        <textarea class="chat-textarea" id="chatTextarea" placeholder="Ask Eve anything..." rows="1"></textarea>
+
+                        <!-- Send Button -->
+                        <button class="btn-send-chat-premium" id="btnSendChatPremium" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chat-disclaimer">
+                        EveAI can provide guidance but is not a substitute for professional medical advice.
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- ===== MOBILE BOTTOM TAB BAR ===== -->
+    <nav class="bottom-tabs" id="bottomTabs">
+        <button class="tab-btn active" data-section="dashboard" id="tab-dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            <span>Home</span>
+        </button>
+        <button class="tab-btn" data-section="tracker" id="tab-tracker">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>Tracker</span>
+        </button>
+        <button class="tab-btn" data-section="predictions" id="tab-predictions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6V12L16 14"/>
+            </svg>
+            <span>Predict</span>
+        </button>
+        <button class="tab-btn" data-section="ovulation" id="tab-ovulation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+                <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+            </svg>
+            <span>Ovulation</span>
+        </button>
+        <button class="tab-btn" data-section="symptoms" id="tab-symptoms">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>Symptoms</span>
+        </button>
+        <button class="tab-btn" data-section="settings" id="tab-settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+        </button>
+    </nav>
+
+    <script src="lib/xlsx.full.min.js"></script>
+    <script src="lib/jspdf.umd.min.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
