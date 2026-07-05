@@ -241,3 +241,18 @@ The compiled APK binary will be saved at:
 <p align="center">
   <i>Made with 💖 for women's health empowerment.</i>
 </p>
+<img width="1918" height="908" alt="Image" src="https://github.com/user-attachments/assets/cb39fe41-3939-47e5-8eb3-729a68181ea2" />
+<img width="1917" height="906" alt="Image" src="https://github.com/user-attachments/assets/aac2205c-c6e4-495e-b795-b9b0a8d6cc8c" />
+<img width="1915" height="906" alt="Image" src="https://github.com/user-attachments/assets/5b3f56ea-0a21-4f42-8023-f0d6cb869f3e" />
+<img width="1918" height="912" alt="Image" src="https://github.com/user-attachments/assets/865398d4-5639-4ffd-8a10-96f207d68d4f" />
+<img width="1915" height="903" alt="Image" src="https://github.com/user-attachments/assets/64c9f00b-84c1-4a4f-b6c0-d47ad2f022a6" />
+<img width="1918" height="905" alt="Image" src="https://github.com/user-attachments/assets/078437ab-94ff-4e26-b3f4-010a8d5ed20d" />
+<img width="1917" height="907" alt="Image" src="https://github.com/user-attachments/assets/b19e6374-05ed-4358-b435-4cbb529a7f7c" />
+<img width="1918" height="906" alt="Image" src="https://github.com/user-attachments/assets/d541dc4d-590c-437e-8c13-9ef4794bb6e8" />
+<img width="1917" height="910" alt="Image" src="https://github.com/user-attachments/assets/4d8c97ff-232d-47ad-b166-4e6d99614c08" />
+<img width="1918" height="907" alt="Image" src="https://github.com/user-attachments/assets/895ea467-86e1-4385-9ebd-284b5bb22edc" />
+<img width="1918" height="911" alt="Image" src="https://github.com/user-attachments/assets/cfb31b5f-b765-4990-93b2-a108e7cce4f2" />
+<img width="1917" height="918" alt="Image" src="https://github.com/user-attachments/assets/5fc8a921-52e3-4438-b4fe-210d48a937b8" />
+<img width="1917" height="915" alt="Image" src="https://github.com/user-attachments/assets/c9b13593-6275-43c2-8534-2dd8d1b9e1e2" />
+<img width="1917" height="907" alt="Image" src="https://github.com/user-attachments/assets/48970915-4afc-4257-9720-5aac06ccdb67" />
+<img width="1917" height="911" alt="Image" src="https://github.com/user-attachments/assets/b0a193f3-9afa-4603-a8ab-acf709331781" />
