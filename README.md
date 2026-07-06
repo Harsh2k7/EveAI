@@ -212,7 +212,7 @@ The compiled APK binary will be saved at:
         <h2 style="color: #ffffff; margin: 0; font-family: 'Inter', sans-serif; border-bottom: none; font-size: 2rem; font-weight: 700; letter-spacing: -0.5px;">Alok Kadam</h2>
         <p style="color: #a855f7; font-weight: 700; margin: 8px 0 16px 0; font-size: 1.15rem; letter-spacing: 0.5px;">Software Engineer & AI Solutions Architect</p>
         <p style="color: #a1a1a8; font-size: 0.95rem; line-height: 1.6; max-width: 480px; margin: 0 auto 25px auto; font-family: 'Inter', sans-serif;">
-          Hi! I'm Alok, a developer focused on designing software solutions that merge aesthetic design with practical utility. Feel free to connect with me for code collaborations, project inquiries, or support requests.
+          Hi! I'm Alok, a developer focused on designing software solutions that merge aesthetic design with practical utility. Feel free to connect with me for code collaborations, project inquirie, or support requests.
         </p>
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <a href="https://github.com/AlokXCreate" target="_blank" style="text-decoration: none;">
